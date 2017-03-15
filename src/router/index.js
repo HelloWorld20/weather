@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Hello from '@/components/Hello'
-import test from '@/components/test'
+import weather from '@/components/weather'
+import music from '@/components/music'
 import NotFound from '@/components/NotFound'
 
 Vue.use(Router)
@@ -14,9 +15,14 @@ export default new Router({
       component: Hello
     },
     {
-      path: '/test',
-      name: 'test',
-      component: test
+      path: '/weather',
+      name: 'weather',
+      component: weather
+    },
+    {
+      path: '/music',
+      name: 'music',
+      component: music
     },
     {
       path: '*',

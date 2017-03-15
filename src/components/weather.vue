@@ -1,5 +1,5 @@
 <template>
-	<div id="test" class="container">
+	<div id="weather" class="container">
 		<div class="row">
 			<div class="col-md-4">
 				<div class="todo mrm">
@@ -21,7 +21,7 @@
 					</div>
 			</div>
 			<div class="col-md-8">
-				<div id="main" style="height: 400px; width: 100%"></div>
+				<div id="main" style="height: 400px; width: 100%" @click="fullScreen"></div>
 			</div>
 		</div>
 		<div class="row">
@@ -58,19 +58,20 @@
 import Vue from 'vue'
 import api from '../config/api.js'
 import cityList from '../config/cityList.js'
+// import snow from '../../static/js/snowfall.jquery.min.js'
+
 export default {
 	data() {
 		return {
-			input: '',
-			basic: {},
-			daily: [],
-			maxTmp: [],
-			minTmp: [],
-			cityList: cityList,		//全局
-			cityLists: cityList.slice(1518, 1522),	//展示部分
-			activeList: [true, false, false, false],
-			isActive: true,
-			date: []
+			input: '',								//搜索框的model
+			basic: {},								//返回数据的basic
+			daily: [],								//返回数据的daily_forecase，
+			maxTmp: [],								//三天时间的最高温度
+			minTmp: [],								//三天时间的最低温度
+			cityList: cityList,						//全局城市列表
+			cityLists: cityList.slice(1518, 1522),	//展示部分的城市列表
+			activeList: [true, false, false, false],//城市列表是否选中
+			date: []								//存储三天时间，用于填充echarts的option			
 		}
 	},
 	methods: {
@@ -94,9 +95,13 @@ export default {
 				})
 
 			})
+		},
+		fullScreen() {
+			document.querySelector('#main').webkitRequestFullScreen();
 		}
 	},
 	created() {
+		//加载时，获取广州数据
 		this.$http.get(api.guangzhou).then(function(res) {
 			let data;
 			try{
@@ -109,6 +114,7 @@ export default {
 				showChart(this);
 			}
 		});
+		//页面装载，添加雪花效果。
 		// $(document).snowfall({
 		// 	image: './static/img/flake.png',
 		// 	minSize: 10, 
