@@ -1,0 +1,19 @@
+<template>
+	<h2>404 NotFound!</h2>
+</template>
+
+<script>
+
+export default {
+	data() {
+		return {
+
+		}
+	}
+}
+
+</script>
+
+<style>
+	
+</style>
