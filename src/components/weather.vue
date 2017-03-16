@@ -244,8 +244,6 @@ function convert2Chart(that, data) {
 
 </script>
 
-<style scoped>
-	th{
-		text-align: center
-	}
+<style>
+	
 </style>

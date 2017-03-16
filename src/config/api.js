@@ -21,7 +21,7 @@ export const music = {
             }
         },
     },
-    hinterland: {
+    mainland: {
         url: 'https://route.showapi.com/213-4?showapi_appid=31967',
         params: (id) => {
             return {
@@ -51,7 +51,7 @@ export const music = {
             }
         },
     },
-    jp: {
+    japan: {
         url: 'https://route.showapi.com/213-4?showapi_appid=31967',
         params: (id) => {
             return {
@@ -81,7 +81,7 @@ export const music = {
             }
         },
     },
-    sales: {
+    bestSeller: {
         url: 'https://route.showapi.com/213-4?showapi_appid=31967',
         params: (id) => {
             return {
