@@ -1,5 +1,6 @@
 <template>
 	<nav class="navbar navbar-inverse">
+		<div id="loading" :class="{active: isLoading}"></div>
 		<div class="container">
 			<div class="navbar-header">
 				<button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar-collapse-1" aria-expanded="false">
@@ -36,10 +37,11 @@
 </template>
 
 <script>
+	import bus from '../../assets/eventBus.js'
 	export default {
 		data() {
 			return {
-
+				isLoading: true
 			}
 		},
 		computed: {
@@ -52,10 +54,44 @@
 			isMusic: function() {
 				return this.$route.path === '/music'
 			}
+		},
+		created() {
+			let self = this;
+			bus.$on('loading', function(msg) {
+				self.isLoading = msg;
+			})
 		}
 	}
 </script>
 
-<style>
-	
+<style scoped>
+#loading{
+	position: fixed;
+    top: 0;
+    left: -100%;
+    z-index: 70;
+    width: 100%;
+    height: 3px;
+    background: #FF4081;
+}
+#loading.active{
+	-webkit-animation: loading-anim 1s ease-in-out infinite;
+	animation: loading-anim 1s ease-in-out infinite;
+}
+@-webkit-keyframes loading-anim {
+    to {
+        -webkit-transform: translateX(200%);
+        transform: translateX(200%)
+    }
+}
+
+@keyframes loading-anim {
+    to {
+        -webkit-transform: translateX(200%);
+        transform: translateX(200%)
+    }
+}
+.navbar{
+	border-radius: 0;
+}
 </style>

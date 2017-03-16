@@ -6,7 +6,7 @@
 </template>
 
 <script>
-
+import {music as api} from "../config/api.js"
 export default {
 	data() {
 		return {

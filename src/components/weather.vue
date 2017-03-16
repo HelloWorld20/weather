@@ -21,7 +21,7 @@
 					</div>
 			</div>
 			<div class="col-md-8">
-				<div id="main" style="height: 400px; width: 100%" @click="fullScreen"></div>
+				<div id="main" style="height: 400px; width: 100%"></div>
 			</div>
 		</div>
 		<div class="row">
@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import api from '../config/api.js'
+import {weather as api} from '../config/api.js'
 import cityList from '../config/cityList.js'
+import bus from '../assets/eventBus.js'
 // import snow from '../../static/js/snowfall.jquery.min.js'
 
 export default {
@@ -76,12 +76,16 @@ export default {
 	},
 	methods: {
 		toggleActive(index) {
+			bus.$emit('loading', true);
 			this.activeList = [false, false, false, false];
 			this.$set(this.activeList, index, !this.activeList[index])
 			this.$nextTick(function() {
 				var selectedCity = document.querySelector('.todo-done')
 
-				this.$http.get(api.forcast + "?key=" + api.key + "&city=" + selectedCity.getAttribute('data-id')).then(res => {
+				this.$http.get(api.url, {
+					params: api.params(selectedCity.getAttribute('data-id'))
+				}).then(res => {
+					bus.$emit('loading', false);
 					let data;
 					try{
 						data = res.body.HeWeather5[0]
@@ -95,14 +99,16 @@ export default {
 				})
 
 			})
-		},
-		fullScreen() {
-			document.querySelector('#main').webkitRequestFullScreen();
 		}
+		// fullScreen() {
+		// 	document.querySelector('#main').webkitRequestFullScreen();
+		// }
 	},
 	created() {
+		bus.$emit('loading', true);
 		//加载时，获取广州数据
-		this.$http.get(api.guangzhou).then(function(res) {
+		this.$http.get(api.default).then(function(res) {
+			bus.$emit('loading', false);
 			let data;
 			try{
 				data = res.body.HeWeather5[0]
