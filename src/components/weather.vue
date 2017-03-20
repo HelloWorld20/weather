@@ -32,6 +32,7 @@
 						<thead>
 							<tr>
 								<th>日期</th>
+								<th>星期</th>
 								<th>最高温度</th>
 								<th>最低温度</th>
 								<th>白天天气</th>
@@ -41,6 +42,7 @@
 						<tbody>
 							<tr v-for="item in daily">
 								<td>{{item.date}}</td>
+								<td>{{item.week}}</td>
 								<td>{{item.tmp.max}}</td>
 								<td>{{item.tmp.min}}</td>
 								<td>{{item.cond.txt_d}}</td>
@@ -71,7 +73,16 @@ export default {
 			cityList: cityList,						//全局城市列表
 			cityLists: cityList.slice(1518, 1522),	//展示部分的城市列表
 			activeList: [true, false, false, false],//城市列表是否选中
-			date: []								//存储三天时间，用于填充echarts的option			
+			date: [],								//存储三天时间，用于填充echarts的option			
+			weekList: {
+				'Mon': '星期一',
+				'Tue': '星期二',
+				'Wed': '星期三',
+				'Thu': '星期四',
+				'Fri': '星期五',
+				'Sat': '星期六',
+				'Sun': '星期日'
+				}	//星期列表
 		}
 	},
 	methods: {
@@ -93,7 +104,7 @@ export default {
 						console.warn(e)
 					}
 					if(data.status === "ok") {
-						convert2Chart(this, data);
+						convert2Chart.call(this, data);
 						showChart(this);
 					}
 				})
@@ -116,7 +127,7 @@ export default {
 				console.warn(e)
 			}
 			if(data.status === "ok") {
-				convert2Chart(this, data);
+				convert2Chart.call(this, data);
 				showChart(this);
 			}
 		});
@@ -230,16 +241,22 @@ function showChart(that){
 	myChart.setOption(option)
 }
 
-function convert2Chart(that, data) {
+function convert2Chart(data) {
+	let self = this;
 	let daily = data.daily_forecast
 
-	that.basic = data.basic
+	this.basic = data.basic
 
-	that.daily = daily
-	that.date = [daily[0].date.slice(-2) + "号",daily[1].date.slice(-2) + "号",daily[2].date.slice(-2) + "号"]
-	that.maxTmp = [parseInt(daily[0].tmp.max), parseInt(daily[1].tmp.max), parseInt(daily[2].tmp.max)];
-	that.minTmp = [parseInt(daily[0].tmp.min), parseInt(daily[1].tmp.min), parseInt(daily[2].tmp.min)];
+	this.date = [daily[0].date.slice(-2) + "号",daily[1].date.slice(-2) + "号",daily[2].date.slice(-2) + "号"]
+	this.maxTmp = [parseInt(daily[0].tmp.max), parseInt(daily[1].tmp.max), parseInt(daily[2].tmp.max)];
+	this.minTmp = [parseInt(daily[0].tmp.min), parseInt(daily[1].tmp.min), parseInt(daily[2].tmp.min)];
 
+	let dailyWeek = [];
+	daily.forEach(function(v, i) {
+		let tDate = new Date(v.date).toString().slice(0,3);
+		daily[i].week = self.weekList[tDate]
+	})
+	this.daily = daily
 }
 
 </script>

@@ -1,5 +1,12 @@
 <template>
 	<div id="music" class="container">
+		<div id="controller" class="alert alert-info" role="alert">
+			<button id="pause" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
+			<button id="change" @click="change" class="btn btn-default glyphicon glyphicon-stop"></button>
+			<audio controls autoplay id="audio" style="display: none">
+				<source :src='songSrc' id="source">
+			</audio>
+		</div>
 		<div class="row">
 			<div class="col-md-3">
 				<button @click="getAmerica" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
@@ -42,7 +49,7 @@
 								</td>
 								<td>
 									<div class="limit">
-										{{song.seconds}}
+										{{song.min}}:{{song.sec}}
 									</div>
 								</td>
 							</tr>
@@ -61,68 +68,100 @@ export default {
 	data() {
 		return {
 			songList: [],
-			activeItem: 'america'
+			activeItem: 'america',
+			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',
+			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
+			songStatus: 'glyphicon-play',
+			songStatusMap: {
+				play: 'glyphicon-play',
+				pause: 'glyphicon-pause',
+				stop: 'glyphicon-stop'
+			}
 		}
 	},
 	methods: {
 		getAmerica(e) {
 			getData.call(this, api.america, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'america'
 			})
 		},
 		getMainland() {
 			getData.call(this, api.mainland, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'mainland'
 			})
 		},
 		getHongkong() {
 			getData.call(this, api.hongkong, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'hongkong'
 			})
 		},
 		getKorea() {
 			getData.call(this, api.korea, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'korea'
 			})
 		},
 		getJapan() {
 			getData.call(this, api.japan, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'japan'
 			})
 		},
 		getBallad() {
 			getData.call(this, api.ballad, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'ballad'
 			})
 		},
 		getRock() {
 			getData.call(this, api.rock, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'rock'
 			})
 		},
 		getBestSeller() {
 			getData.call(this, api.bestSeller, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'bestSeller'
 			})
 		},
 		getHot() {
 			getData.call(this, api.hot, list => {
+				sec2Min(list);
 				this.songList = list;
 				this.activeItem = 'hot'
 			})
+		},
+		change() {
+
+		},
+		swift() {
+			let audio = document.querySelector("#audio")
+			if (audio.paused) {
+				audio.play()
+				this.songStatus = this.songStatusMap['play'];
+			} else {
+				audio.pause();
+				this.songStatus = this.songStatusMap['pause'];
+			}
 		}
 	},
 	created() {
 		getData.call(this, api.america, list => {
+			sec2Min(list);
 			this.songList = list;
+			this.activeItem = 'america'
 		})
 	},
 	computed:{
@@ -172,6 +211,13 @@ function getData(district, handler) {
 		} else {
 			console.log('接口信息错误')
 		}
+	})
+}
+
+function sec2Min(list) {
+	list.forEach(function(v, i) {
+		list[i].min = parseInt(v.seconds / 60);
+		list[i].sec = v.seconds % 60;
 	})
 }
 </script>
