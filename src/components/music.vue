@@ -15,12 +15,23 @@
 				<div id="player" class="palette palette-night-dark">
 					<span>正在播放：</span>
 					<p id="songName" :title="songName">{{songName}}</p>
-					<button id="pause" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
-					<button id="change" @click="change" class="btn btn-default glyphicon glyphicon-stop"></button>
-					<audio controls autoplay id="audio" style="display: none">
-						<source :src='songSrc' id="source">
+					<button id="reload" @click="reload" class="btn btn-default glyphicon glyphicon-repeat"></button>
+					<button id="swift" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
+					<button id="stop" @click="stop" class="btn btn-default glyphicon glyphicon-stop"></button>
+
+					<!-- <div id="slider" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" aria-disabled="false">
+		            	<div class="ui-slider-segment"></div>
+		            	<div class="ui-slider-segment"></div>
+		            	<div class="ui-slider-segment"></div>
+		          		<div class="ui-slider-range ui-widget-header ui-slider-range-min" style="width: 75%;"></div><a class="ui-slider-handle ui-state-default ui-corner-all" href="#" style="left: 75%;"></a>
+		          	</div> -->
+
+					<audio controls autoplay id="audio" :src="songSrc" controls loop>
+						<!-- <source :src='songSrc' id="source"> -->
 					</audio>
 				</div>
+				<button @click="getBestSeller" :class="{'btn-active': isBestSeller}" class="btn btn-inverse btn-block">销量</button>
+				<button @click="getHot" :class="{'btn-active': isHot}" class="btn btn-inverse btn-block">热歌</button>
 				<button @click="getAmerica" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
 				<button @click="getMainland" :class="{'btn-active': isMainLand}" class="btn btn-inverse btn-block">内地</button>
 				<button @click="getHongkong" :class="{'btn-active': isHongkong}" class="btn btn-inverse btn-block">港台</button>
@@ -28,8 +39,7 @@
 				<button @click="getJapan" :class="{'btn-active': isJapan}" class="btn btn-inverse btn-block">日本</button>
 				<button @click="getBallad" :class="{'btn-active': isBallad}" class="btn btn-inverse btn-block">民谣</button>
 				<button @click="getRock" :class="{'btn-active': isRock}" class="btn btn-inverse btn-block">摇滚</button>
-				<button @click="getBestSeller" :class="{'btn-active': isBestSeller}" class="btn btn-inverse btn-block">销量</button>
-				<button @click="getHot" :class="{'btn-active': isHot}" class="btn btn-inverse btn-block">热歌</button>
+				
 			</div>
 			<div class="col-md-9">
 				<div class="table">
@@ -45,8 +55,8 @@
 						<tbody>
 							<tr v-for="song in songList">
 								<td>
-									<a :href="song.url">
-										<img :src="song.albumpic_small" alt="song.songname">
+									<a href="javascript:;" @click="play(song.url, song.songname)">
+										<img :src="song.albumpic_small" :alt="song.songname">
 									</a>
 								</td>
 								<td>
@@ -82,7 +92,8 @@ export default {
 		return {
 			songList: [],												//音乐列表
 			activeItem: 'america',										//当前栏目
-			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',
+			songSrc: '',
+			// 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46'
 			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
 			songStatus: 'glyphicon-play',								//播放器状态
 			songStatusMap: {
@@ -91,7 +102,7 @@ export default {
 				stop: 'glyphicon-stop'
 			},
 			songName: '---',											//当前音乐名称
-			songVal: ''													//搜索框model
+			songVal: '',												//搜索框model
 		}
 	},
 	methods: {
@@ -158,8 +169,12 @@ export default {
 				this.activeItem = 'hot'
 			})
 		},
-		change() {
-
+		reload() {
+			document.querySelector('#audio').load()
+		},
+		stop() {
+			document.querySelector('#audio').load()
+			document.querySelector('#audio').pause()
 		},
 		search() {
 			bus.$emit('loading', true);
@@ -171,7 +186,7 @@ export default {
 					let songList;
 					try{
 						songList = res.body.showapi_res_body.pagebean.contentlist.slice(0,10);
-						sec2Min(songList);
+						songList = searchData2SongList(songList);
 						this.songList = songList;
 						this.activeItem = 'search'
 					} catch (e) {
@@ -186,21 +201,23 @@ export default {
 			let audio = document.querySelector("#audio")
 			if (audio.paused) {
 				audio.play()
-				this.songStatus = this.songStatusMap['play'];
+				this.songStatus = this.songStatusMap['pause'];
 			} else {
 				audio.pause();
-				this.songStatus = this.songStatusMap['pause'];
+				this.songStatus = this.songStatusMap['play'];
 			}
 		},
 		play(url, name) {
-			this.songName = name
+			this.songName = name;
+			this.songSrc = url;
+			this.songStatus = this.songStatusMap['pause']
 		}
 	},
 	created() {
-		getData.call(this, api.america, list => {
+		getData.call(this, api.bestSeller, list => {
 			sec2Min(list);
 			this.songList = list;
-			this.activeItem = 'america'
+			this.activeItem = 'bestSeller'
 		})
 	},
 	computed:{
@@ -255,10 +272,21 @@ function getData(district, handler) {
 
 function sec2Min(list) {
 	list.forEach(function(v, i) {
-		if(!v.seconds) v.seconds = 0;
+		if(!v.seconds) {
+			list[i].min = list[i].sec = '--'
+			return;
+		}
 		list[i].min = parseInt(v.seconds / 60);
 		list[i].sec = v.seconds % 60;
 	})
+}
+//搜索结果的数据格式转换成播放列表model
+function searchData2SongList(list) {
+	list.forEach(function(v, i) {
+		list[i].url = v.m4a;
+		list[i].min = list[i].sec = '--'
+	})
+	return list;
 }
 </script>
 
@@ -273,7 +301,7 @@ function sec2Min(list) {
 	border-color: #48c9b0;
 }
 .limit{
-	max-width: 300px;
+	max-width: 100%;
 	overflow:hidden;
 	white-space:nowrap;
 	text-overflow:ellipsis;
@@ -292,5 +320,10 @@ function sec2Min(list) {
 }
 #searchMusic{
 	text-align: center;
+}
+#audio{
+	width: 100%;
+	margin: 10px auto 0 auto;
+
 }
 </style>
