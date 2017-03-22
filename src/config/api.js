@@ -101,5 +101,14 @@ export const music = {
             }
         },
     },
+    search: {
+        url: 'https://route.showapi.com/213-1?showapi_appid=31967',
+        params: (key) => {
+            return {
+                keyword: key,
+                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+            }
+        },
+    }
 
 }

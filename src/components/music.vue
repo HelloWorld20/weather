@@ -1,14 +1,26 @@
 <template>
 	<div id="music" class="container">
-		<div id="controller" class="alert alert-info" role="alert">
-			<button id="pause" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
-			<button id="change" @click="change" class="btn btn-default glyphicon glyphicon-stop"></button>
-			<audio controls autoplay id="audio" style="display: none">
-				<source :src='songSrc' id="source">
-			</audio>
-		</div>
 		<div class="row">
 			<div class="col-md-3">
+				<form @submit.prevent="search" action="#">
+					<div class="input-group">
+				      	<input id="searchMusic" type="text" class="form-control" placeholder="Search for..." v-model="songVal" autocomplete="off">
+				      	<span class="input-group-btn">
+				        	<button @click.prevent="search" class="btn" type="button">
+								<p class="glyphicon glyphicon-search"></p>
+				        	</button>
+				      	</span>
+				    </div>
+				</form>
+				<div id="player" class="palette palette-night-dark">
+					<span>正在播放：</span>
+					<p id="songName" :title="songName">{{songName}}</p>
+					<button id="pause" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
+					<button id="change" @click="change" class="btn btn-default glyphicon glyphicon-stop"></button>
+					<audio controls autoplay id="audio" style="display: none">
+						<source :src='songSrc' id="source">
+					</audio>
+				</div>
 				<button @click="getAmerica" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
 				<button @click="getMainland" :class="{'btn-active': isMainLand}" class="btn btn-inverse btn-block">内地</button>
 				<button @click="getHongkong" :class="{'btn-active': isHongkong}" class="btn btn-inverse btn-block">港台</button>
@@ -39,7 +51,7 @@
 								</td>
 								<td>
 									<div class="limit">
-										<a :href="song.url">{{song.songname}}</a>
+										<a href="javascript:;" @click="play(song.url, song.songname)">{{song.songname}}</a>
 									</div>
 								</td>
 								<td>
@@ -58,6 +70,7 @@
 				</div>
 			</div>
 		</div>
+		
 	</div>
 </template>
 
@@ -67,20 +80,22 @@ import bus from '../assets/eventBus.js'
 export default {
 	data() {
 		return {
-			songList: [],
-			activeItem: 'america',
+			songList: [],												//音乐列表
+			activeItem: 'america',										//当前栏目
 			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',
 			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
-			songStatus: 'glyphicon-play',
+			songStatus: 'glyphicon-play',								//播放器状态
 			songStatusMap: {
 				play: 'glyphicon-play',
 				pause: 'glyphicon-pause',
 				stop: 'glyphicon-stop'
-			}
+			},
+			songName: '---',											//当前音乐名称
+			songVal: ''													//搜索框model
 		}
 	},
 	methods: {
-		getAmerica(e) {
+		getAmerica() {
 			getData.call(this, api.america, list => {
 				sec2Min(list);
 				this.songList = list;
@@ -146,6 +161,27 @@ export default {
 		change() {
 
 		},
+		search() {
+			bus.$emit('loading', true);
+			this.$http.get(api.search.url, {
+				params: api.search.params(this.songVal)
+			}).then(res => {
+				bus.$emit('loading', false);
+				if(res.body.showapi_res_code === 0) {
+					let songList;
+					try{
+						songList = res.body.showapi_res_body.pagebean.contentlist.slice(0,10);
+						sec2Min(songList);
+						this.songList = songList;
+						this.activeItem = 'search'
+					} catch (e) {
+						console.log(e)
+					}
+				} else {
+					console.log('接口信息错误')
+				}
+			})
+		},
 		swift() {
 			let audio = document.querySelector("#audio")
 			if (audio.paused) {
@@ -155,6 +191,9 @@ export default {
 				audio.pause();
 				this.songStatus = this.songStatusMap['pause'];
 			}
+		},
+		play(url, name) {
+			this.songName = name
 		}
 	},
 	created() {
@@ -216,6 +255,7 @@ function getData(district, handler) {
 
 function sec2Min(list) {
 	list.forEach(function(v, i) {
+		if(!v.seconds) v.seconds = 0;
 		list[i].min = parseInt(v.seconds / 60);
 		list[i].sec = v.seconds % 60;
 	})
@@ -223,19 +263,34 @@ function sec2Min(list) {
 </script>
 
 <style scoped>
-	.table > tbody > tr > td{
-		line-height: 107px;
-		padding: 0;
-	}
-	.btn-active{
-		color: #ffffff;
-    	background-color: #48c9b0;
-    	border-color: #48c9b0;
-	}
-	.limit{
-		max-width: 300px;
-		overflow:hidden;
-		white-space:nowrap;
-		text-overflow:ellipsis;
-	}
+.table > tbody > tr > td{
+	line-height: 107px;
+	padding: 0;
+}
+.btn-active{
+	color: #ffffff;
+	background-color: #48c9b0;
+	border-color: #48c9b0;
+}
+.limit{
+	max-width: 300px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+#player{
+	margin: 10px auto;
+}
+#music{
+	padding-bottom: 100px;
+}
+#songName{
+	max-width: 100%;
+	overflow: hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+#searchMusic{
+	text-align: center;
+}
 </style>
