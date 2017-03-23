@@ -12,33 +12,18 @@
 				      	</span>
 				    </div>
 				</form>
-				<div id="player" class="palette palette-night-dark">
-					<span>正在播放：</span>
-					<p id="songName" :title="songName">{{songName}}</p>
-					<button id="reload" @click="reload" class="btn btn-default glyphicon glyphicon-repeat"></button>
-					<button id="swift" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
-					<button id="stop" @click="stop" class="btn btn-default glyphicon glyphicon-stop"></button>
 
-					<!-- <div id="slider" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" aria-disabled="false">
-		            	<div class="ui-slider-segment"></div>
-		            	<div class="ui-slider-segment"></div>
-		            	<div class="ui-slider-segment"></div>
-		          		<div class="ui-slider-range ui-widget-header ui-slider-range-min" style="width: 75%;"></div><a class="ui-slider-handle ui-state-default ui-corner-all" href="#" style="left: 75%;"></a>
-		          	</div> -->
-
-					<audio controls autoplay id="audio" :src="songSrc" controls loop>
-						<!-- <source :src='songSrc' id="source"> -->
-					</audio>
+				<div id="gallery">
+					<button @click="getMusic('bestSeller')" :class="{'btn-active': isBestSeller}" class="btn btn-inverse btn-block">销量</button>
+					<button @click="getMusic('hot')" :class="{'btn-active': isHot}" class="btn btn-inverse btn-block">热歌</button>
+					<button @click="getMusic('america')" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
+					<button @click="getMusic('mainland')" :class="{'btn-active': isMainLand}" class="btn btn-inverse btn-block">内地</button>
+					<button @click="getMusic('hongkong')" :class="{'btn-active': isHongkong}" class="btn btn-inverse btn-block">港台</button>
+					<button @click="getMusic('korea')" :class="{'btn-active': isKorea}" class="btn btn-inverse btn-block">韩国</button>
+					<button @click="getMusic('japan')" :class="{'btn-active': isJapan}" class="btn btn-inverse btn-block">日本</button>
+					<button @click="getMusic('ballad')" :class="{'btn-active': isBallad}" class="btn btn-inverse btn-block">民谣</button>
+					<button @click="getMusic('rock')" :class="{'btn-active': isRock}" class="btn btn-inverse btn-block">摇滚</button>
 				</div>
-				<button @click="getBestSeller" :class="{'btn-active': isBestSeller}" class="btn btn-inverse btn-block">销量</button>
-				<button @click="getHot" :class="{'btn-active': isHot}" class="btn btn-inverse btn-block">热歌</button>
-				<button @click="getAmerica" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
-				<button @click="getMainland" :class="{'btn-active': isMainLand}" class="btn btn-inverse btn-block">内地</button>
-				<button @click="getHongkong" :class="{'btn-active': isHongkong}" class="btn btn-inverse btn-block">港台</button>
-				<button @click="getKorea" :class="{'btn-active': isKorea}" class="btn btn-inverse btn-block">韩国</button>
-				<button @click="getJapan" :class="{'btn-active': isJapan}" class="btn btn-inverse btn-block">日本</button>
-				<button @click="getBallad" :class="{'btn-active': isBallad}" class="btn btn-inverse btn-block">民谣</button>
-				<button @click="getRock" :class="{'btn-active': isRock}" class="btn btn-inverse btn-block">摇滚</button>
 				
 			</div>
 			<div class="col-md-9">
@@ -55,13 +40,13 @@
 						<tbody>
 							<tr v-for="song in songList">
 								<td>
-									<a href="javascript:;" @click="play(song.url, song.songname)">
+									<a href="javascript:;" @click="play(song)">
 										<img :src="song.albumpic_small" :alt="song.songname">
 									</a>
 								</td>
 								<td>
 									<div class="limit">
-										<a href="javascript:;" @click="play(song.url, song.songname)">{{song.songname}}</a>
+										<a href="javascript:;" @click="play(song)">{{song.songname}}</a>
 									</div>
 								</td>
 								<td>
@@ -92,89 +77,16 @@ export default {
 		return {
 			songList: [],												//音乐列表
 			activeItem: 'america',										//当前栏目
-			songSrc: '',
-			// 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46'
-			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
-			songStatus: 'glyphicon-play',								//播放器状态
-			songStatusMap: {
-				play: 'glyphicon-play',
-				pause: 'glyphicon-pause',
-				stop: 'glyphicon-stop'
-			},
-			songName: '---',											//当前音乐名称
 			songVal: '',												//搜索框model
 		}
 	},
 	methods: {
-		getAmerica() {
-			getData.call(this, api.america, list => {
+		getMusic(key) {
+			getData.call(this, api[key], list => {
 				sec2Min(list);
 				this.songList = list;
-				this.activeItem = 'america'
+				this.activeItem = key;
 			})
-		},
-		getMainland() {
-			getData.call(this, api.mainland, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'mainland'
-			})
-		},
-		getHongkong() {
-			getData.call(this, api.hongkong, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'hongkong'
-			})
-		},
-		getKorea() {
-			getData.call(this, api.korea, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'korea'
-			})
-		},
-		getJapan() {
-			getData.call(this, api.japan, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'japan'
-			})
-		},
-		getBallad() {
-			getData.call(this, api.ballad, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'ballad'
-			})
-		},
-		getRock() {
-			getData.call(this, api.rock, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'rock'
-			})
-		},
-		getBestSeller() {
-			getData.call(this, api.bestSeller, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'bestSeller'
-			})
-		},
-		getHot() {
-			getData.call(this, api.hot, list => {
-				sec2Min(list);
-				this.songList = list;
-				this.activeItem = 'hot'
-			})
-		},
-		reload() {
-			document.querySelector('#audio').load()
-		},
-		stop() {
-			document.querySelector('#audio').load()
-			document.querySelector('#audio').pause()
 		},
 		search() {
 			bus.$emit('loading', true);
@@ -197,28 +109,15 @@ export default {
 				}
 			})
 		},
-		swift() {
-			let audio = document.querySelector("#audio")
-			if (audio.paused) {
-				audio.play()
-				this.songStatus = this.songStatusMap['pause'];
-			} else {
-				audio.pause();
-				this.songStatus = this.songStatusMap['play'];
-			}
-		},
-		play(url, name) {
-			this.songName = name;
-			this.songSrc = url;
-			this.songStatus = this.songStatusMap['pause']
+		
+		play(info) {
+			let playData = {}
+
+			bus.$emit('play', info)
 		}
 	},
 	created() {
-		getData.call(this, api.bestSeller, list => {
-			sec2Min(list);
-			this.songList = list;
-			this.activeItem = 'bestSeller'
-		})
+		this.getMusic('bestSeller');
 	},
 	computed:{
 		isAmerica() {
@@ -309,9 +208,6 @@ function searchData2SongList(list) {
 #player{
 	margin: 10px auto;
 }
-#music{
-	padding-bottom: 100px;
-}
 #songName{
 	max-width: 100%;
 	overflow: hidden;
@@ -324,6 +220,8 @@ function searchData2SongList(list) {
 #audio{
 	width: 100%;
 	margin: 10px auto 0 auto;
-
+}
+#gallery{
+	margin: 10px 0;
 }
 </style>
