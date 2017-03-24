@@ -28,6 +28,7 @@ export default {
     color: #2c3e50;
     padding-bottom: 150px;
 }
+
 th{
     text-align: center
 }

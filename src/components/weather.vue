@@ -196,6 +196,9 @@ function showChart(that){
 	    yAxis : [
 	        {
 	            type : 'value',
+	            // min: 'auto',
+	            // max: 'auto',
+	            scale: true,
 	            axisLabel : {
 	                formatter: '{value} °C'
 	            }

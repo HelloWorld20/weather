@@ -15,6 +15,14 @@
 						<button id="swift" @click="swift" class="btn btn-default glyphicon" :class="songStatus"></button>
 						<button id="stop" @click="stop" class="btn btn-default glyphicon glyphicon-stop"></button>
 					</div>
+					<div id="progressInfo">
+						<div class="time fl">2:34</div>
+				        <div class="time fr">3.21</div>
+						<div id="progressBar" class="ui-slider ui-slider-horizontal">
+				          	<div class="ui-slider-range"></div>
+				          	<a class="ui-slider-handle" href="javascript:;"></a>
+				        </div>
+					</div>
 				</div>
 			</div>
 
@@ -44,6 +52,8 @@ export default {
 			isActive: true,
 			albumpic_small: '../../../static/img/placeholder.png',
 			audio: null,
+			progress: 0,
+			volume: 50,
 		}
 	},
 	methods: {
@@ -77,8 +87,19 @@ export default {
 		})
 	},
 	mounted() {
+		let self = this;
 		this.audio = document.querySelector('#audio');
-
+		//
+		let slider = $("#progressBar").slider({
+	        slide: function(e, ui) {
+	        	self.volume = ui.value
+	        },
+	        range: "min",
+	    });
+	    // setInterval(function() {
+	    // 	console.log(self.test)
+	    // 	slider.slider('value', self.test++)
+	    // }, 200)
 	}
 }
 
@@ -98,8 +119,12 @@ export default {
 	text-overflow:ellipsis;
 }
 .controller{
-	height: 90px;
-	line-height: 90px;	
+	margin: 10px 0;
+}
+#progressBar{
+	margin: 10px 0;
+	width: 80%;
+	margin-left: 10%;
 }
 #player.active{
 	bottom: 0;
@@ -108,5 +133,9 @@ export default {
 	float: left;
 	line-height: 90px;
 	max-height: 90px;
+}
+.time{
+	width: 10%;
+	margin-top: -2px;
 }
 </style>

@@ -14,6 +14,7 @@
 				</form>
 
 				<div id="gallery">
+
 					<button @click="getMusic('bestSeller')" :class="{'btn-active': isBestSeller}" class="btn btn-inverse btn-block">销量</button>
 					<button @click="getMusic('hot')" :class="{'btn-active': isHot}" class="btn btn-inverse btn-block">热歌</button>
 					<button @click="getMusic('america')" :class="{'btn-active': isAmerica}" class="btn btn-inverse btn-block">欧美</button>
@@ -75,9 +76,9 @@ import bus from '../assets/eventBus.js'
 export default {
 	data() {
 		return {
-			songList: [],												//音乐列表
-			activeItem: 'america',										//当前栏目
-			songVal: '',												//搜索框model
+			songList: [],													//音乐列表
+			activeItem: 'bestSeller',										//当前栏目
+			songVal: '',													//搜索框model
 		}
 	},
 	methods: {
@@ -118,6 +119,9 @@ export default {
 	},
 	created() {
 		this.getMusic('bestSeller');
+	},
+	mounted() {
+		
 	},
 	computed:{
 		isAmerica() {
@@ -224,4 +228,10 @@ function searchData2SongList(list) {
 #gallery{
 	margin: 10px 0;
 }
+
+.ui-slider-horizontal .ui-slider-handle {
+  	top: -0.3em;
+    margin-left: -0.6em;
+}
+
 </style>
