@@ -16,17 +16,17 @@
 						<button id="stop" @click="stop" class="btn btn-default glyphicon glyphicon-stop"></button>
 					</div>
 					<div id="progressInfo">
-						<div class="time fl">2:34</div>
-				        <div class="time fr">3.21</div>
+						<div class="time fl">{{couterFront}}</div>
+				        <div class="time fr">{{couterEnd}}</div>
 						<div id="progressBar" class="ui-slider ui-slider-horizontal">
 				          	<div class="ui-slider-range"></div>
-				          	<a class="ui-slider-handle" href="javascript:;"></a>
+				          	<a id="progressHandler" class="ui-slider-handle" href="javascript:;"></a>
 				        </div>
 					</div>
 				</div>
 			</div>
 
-			<audio id="audio" :src="songSrc" loop controls autoplay style="display: none">
+			<audio id="audio" :src="songSrc" loop controls style="display: none">
 			<!-- <source :src='songSrc' id="source"> -->
 			</audio>
 		</div>
@@ -52,19 +52,27 @@ export default {
 			isActive: true,
 			albumpic_small: '../../../static/img/placeholder.png',
 			audio: null,
+			slider: null,
+			processBarLocked: false,
 			progress: 0,
 			volume: 50,
+			totleTime: 0,
+			couterFront: '--:--',										//播放进度
+			couterEnd: '--:--'											//音乐总时间
 		}
 	},
 	methods: {
 		reload() {
 			if(this.audio.readyState !== 4) return;
 			this.audio.load()
+			this.audio.play()
+			this.songStatus = this.songStatusMap['pause'];
 		},
 		stop() {
 			if(this.audio.readyState !== 4) return;
 			this.audio.load()
 			this.audio.pause()
+			this.songStatus = this.songStatusMap['play'];
 		},
 		swift() {
 			if(this.audio.readyState !== 4) return;
@@ -83,24 +91,75 @@ export default {
 			self.songName = receive.songname;
 			self.songSrc = receive.url;
 			self.albumpic_small = receive.albumpic_small;
+			self.totleTime = receive.seconds || 59*60+59;
 			self.songData = receive;
+
+			// console.log(self.audio.readyState)		//4
+			//又不知道为什么，readyState已经等于4之后，直接play()没有播放。
+			setTimeout(function() {
+				self.audio.play();
+			}, 20)
+			self.songStatus = self.songStatusMap['pause'];
+
 		})
+	},
+	watch: {
+
+	},
+	computed: {
+		// couterFront() {
+		// 	if(self.audio && self.audio.currentTime) {
+		// 		return parseInt(self.audio.currentTime / 60) + '' + self.audio.currentTime % 60;
+		// 	}
+		// 		return '--:--'
+		// },
+		// couterEnd() {
+		// 	if(this.totleTime === 0) {
+		// 		return '--:--'
+		// 	}
+		// 	return parseInt(this.totleTime / 60) + '' + this.totleTime % 60;
+		// }
 	},
 	mounted() {
 		let self = this;
 		this.audio = document.querySelector('#audio');
 		//
-		let slider = $("#progressBar").slider({
+		this.slider = $("#progressBar").slider({
 	        slide: function(e, ui) {
-	        	self.volume = ui.value
+	        	self.progress = ui.value
 	        },
 	        range: "min",
 	    });
-	    // setInterval(function() {
-	    // 	console.log(self.test)
-	    // 	slider.slider('value', self.test++)
-	    // }, 200)
+
+		$("#progressHandler").on('mouseup', function() {
+			self.processBarLocked = false;
+			self.audio.currentTime = parseInt(parseInt(self.progress * self.totleTime) / 100)
+		}).on('mousedown', function() {
+			self.processBarLocked = true;
+		})
+
+	    setInterval(function() {
+	    	let totleTime = self.totleTime
+	    	let currentTime = self.audio.currentTime
+	    	setProcessBar.call(self, parseInt(currentTime * 100 / totleTime))
+	    	self.couterFront = sec2MinStr(currentTime)
+	    	self.couterEnd = sec2MinStr(totleTime)
+	    }, 500)
+
 	}
+
+}
+function setProcessBar(value) {
+	if(this.processBarLocked) return;
+	this.slider.slider('value', value)
+}
+function sec2MinStr(val) {
+	if(!val || val === 0) return '--:--'
+	return parseInt(val / 60) + ':' + parseInt(val % 60);
+	// return {
+	// 	sec: val.seconds % 60,
+	// 	min: parseInt(val.seconds / 60)
+	// }
 }
 
 </script>

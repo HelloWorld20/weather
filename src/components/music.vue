@@ -172,7 +172,7 @@ function getData(district, handler) {
 		}
 	})
 }
-
+//秒变分：秒格式
 function sec2Min(list) {
 	list.forEach(function(v, i) {
 		if(!v.seconds) {
