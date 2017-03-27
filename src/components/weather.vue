@@ -21,7 +21,7 @@
 					</div>
 			</div>
 			<div class="col-md-8">
-				<div id="main" style="height: 400px; width: 100%"></div>
+				<div id="weatherView" style="height: 400px; width: 100%"></div>
 			</div>
 		</div>
 		<div class="row">
@@ -53,12 +53,19 @@
 				</div>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div id="hazeView" style="height:500px;width:100%;"></div>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
 import {weather as api} from '../config/api.js'
 import cityList from '../config/cityList.js'
+import ingAndLat from '../config/lngAndLat.js'
+import apiData from '../config/aqi-3-27.js'
 import bus from '../assets/eventBus.js'
 // import snow from '../../static/js/snowfall.jquery.min.js'
 
@@ -105,14 +112,14 @@ export default {
 					}
 					if(data.status === "ok") {
 						convert2Chart.call(this, data);
-						showChart(this);
+						showWeatherChart(this);
 					}
 				})
 
 			})
 		}
 		// fullScreen() {
-		// 	document.querySelector('#main').webkitRequestFullScreen();
+		// 	document.querySelector('#weatherView').webkitRequestFullScreen();
 		// }
 	},
 	created() {
@@ -127,16 +134,38 @@ export default {
 				console.warn(e)
 			}
 			if(data.status === "ok") {
-				convert2Chart.call(this, data);
-				showChart(this);
+				convert2Chart.call(this, data)
+				showWeatherChart(this);
 			}
 		});
+
+	},
+	mounted() {
+		showHazeChart();
 		//页面装载，添加雪花效果。
 		// $(document).snowfall({
 		// 	image: './static/img/flake.png',
 		// 	minSize: 10, 
 		// 	maxSize:32
 		// })
+
+		let hazeView = document.getElementById("hazeView");
+		
+		hazeView.onclick = function(e) {
+			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+			if(fullscreenElement) {
+				exitFullscreen()
+			} else {
+				launchFullscreen(hazeView)
+			}
+
+			setTimeout(function() {
+		    	showHazeChart();
+		    }, 20)
+		    
+		    console.log(fullscreenElement)
+		}
+		
 	},
 	watch: {
 		input: function(val, oldVal) {
@@ -161,8 +190,8 @@ export default {
 	}
 }
 
-function showChart(that){
-	let myChart = echarts.init(document.querySelector('#main'));
+function showWeatherChart(that){
+	let weatherChart = echarts.init(document.querySelector('#weatherView'));
 	let option = {
 	    title : {
 	        text: '未来一周气温变化',
@@ -241,7 +270,97 @@ function showChart(that){
 	        }
 	    ]
 	};
-	myChart.setOption(option)
+	weatherChart.setOption(option)
+}
+
+function showHazeChart() {
+
+	let hazeChart = echarts.init(document.querySelector('#hazeView'));
+
+	let geoCoordMap = {};
+	let apiMap = [];
+
+	for(let i in ingAndLat) {
+		let detail = ingAndLat[i];
+		let tArr = [];
+
+		tArr.push(detail.lng)
+		tArr.push(detail.lat)
+
+		geoCoordMap[i] = tArr;
+	}
+
+	for(let i in apiData) {
+		let tObj = {}
+		let current = apiData[i];
+		
+		try{
+			tObj.name = current.city
+			tObj.value = current.value.aqi
+		} catch (e) {
+			console.log('部分aqi参数为空')
+		}
+
+		apiMap.push(tObj)
+	}
+
+	var convertData = function (data) {
+	    var res = [];
+	    for (var i = 0; i < data.length; i++) {
+	        var geoCoord = geoCoordMap[data[i].name];
+	        if (geoCoord) {
+	            res.push(geoCoord.concat(data[i].value));
+	        }
+	    }
+	    return res;
+	};
+
+	let option = {
+	    title: {
+	        text: '全国主要城市空气质量',
+	        left: 'center',
+	        textStyle: {
+	            color: '#fff'
+	        }
+	    },
+	    backgroundColor: '#404a59',
+	    visualMap: {
+	        min: 0,
+	        max: 500,
+	        splitNumber: 5,
+	        inRange: {
+	            color: ['#d94e5d','#eac736','#50a3ba'].reverse()
+	        },
+	        textStyle: {
+	            color: '#fff'
+	        }
+	    },
+	    geo: {
+	        map: 'china',
+	        label: {
+	            emphasis: {
+	                show: false
+	            }
+	        },
+	        roam: true,
+	        itemStyle: {
+	            normal: {
+	                areaColor: '#323c48',
+	                borderColor: '#111'
+	            },
+	            emphasis: {
+	                areaColor: '#2a333d'
+	            }
+	        }
+	    },
+	    series: [{
+	        name: 'AQI',
+	        type: 'heatmap',
+	        coordinateSystem: 'geo',
+	        data: convertData(apiMap)
+	    }]
+	};
+	hazeChart.setOption(option)
 }
 
 function convert2Chart(data) {
@@ -262,8 +381,85 @@ function convert2Chart(data) {
 	this.daily = daily
 }
 
+function launchFullscreen(element) {
+  	if(element.requestFullscreen) {
+    	element.requestFullscreen();
+  	} else if(element.mozRequestFullScreen) {
+    	element.mozRequestFullScreen();
+  	} else if(element.msRequestFullscreen){
+    	element.msRequestFullscreen();
+  	} else if(element.webkitRequestFullscreen) {
+    	element.webkitRequestFullScreen();
+  	}
+}
+
+function exitFullscreen() {
+  	if (document.exitFullscreen) {
+    	document.exitFullscreen();
+  	} else if (document.msExitFullscreen) {
+    	document.msExitFullscreen();
+  	} else if (document.mozCancelFullScreen) {
+    	document.mozCancelFullScreen();
+  	} else if (document.webkitExitFullscreen) {
+    	document.webkitExitFullscreen();
+  	}
+}
+//爬取空气质量node代码
+// const fs = require('fs');
+// const superagent = require('superagent');
+// const cityList = require('./supportCityList.js');
+
+// let url = 'http://route.showapi.com/104-29?city=';
+// const params = '&showapi_appid=34207&showapi_sign=4b506e41578e4b31a556377023b49060'
+
+// // var params = function() {
+// //         return {
+// //             city: '广州',
+// //             showapi_appid: 34207,
+// //             showapi_sign: "4b506e41578e4b31a556377023b49060"
+// //         }
+// //     }
+// const len = cityList.length
+// let i = 0;
+// console.time('count')
+// fetch(cityList[i], i < len);
+
+// result = [];
+// // fs.writeFile('./result.js', JSON.stringify(result), function() {
+
+// // })
+// function fetch(city, flag) {
+// 	if(!flag) {
+// 		fs.writeFile('./result.js', JSON.stringify(result))
+// 		console.timeEnd('count')
+// 		return;
+// 	}
+// 	superagent.get(url + encodeURI(city) + params)
+// 		.end(function(err, res) {
+// 			if(err) {
+// 				throw new Error('Custom Error : ' + err)
+// 				return;
+// 			}
+// 			// console.log(JSON.parse(res.text).showapi_res_body.pm)
+// 			let pm = JSON.parse(res.text).showapi_res_body.pm;
+// 			console.log(pm);
+// 			var temp = {}
+// 			temp['city'] = city;
+// 			temp['value'] = pm
+// 			result.push(temp);
+// 			setTimeout(() => {
+// 				fetch(cityList[i++], i < len)
+// 			}, 1000)
+// 		})
+// }
+
+// module.exports = {
+	
+// }
+
+
 </script>
 
-<style>
-	
+<style scoped>
+
 </style>
