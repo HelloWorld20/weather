@@ -122,6 +122,16 @@ export const music = {
                 showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
             }
         },
+    },
+    lyrics: {
+        url: 'http://route.showapi.com/213-2',
+        params: (id) => {
+            return {
+                showapi_appid: 31967,
+                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                musicid: id
+            }
+        }
     }
 
 }

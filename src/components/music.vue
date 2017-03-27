@@ -82,12 +82,12 @@ export default {
 		}
 	},
 	methods: {
-		getMusic(key) {
+		getMusic(key, id) {
 			getData.call(this, api[key], list => {
 				sec2Min(list);
 				this.songList = list;
 				this.activeItem = key;
-			})
+			}, id)
 		},
 		search() {
 			bus.$emit('loading', true);
@@ -112,9 +112,24 @@ export default {
 		},
 		
 		play(info) {
-			let playData = {}
+			let lyrics;
+			this.$http.get(api.lyrics.url, {
+				params: api.lyrics.params(info.albumid)
+			}).then(res => {
+				
+				try{
+					lyrics = res.body.showapi_res_body.lyric_txt;
+				} catch (e) {
+					console.warn('获取歌词失败')
+				}
 
-			bus.$emit('play', info)
+				// console.log(res.body.showapi_res_body)
+				bus.$emit('play', {
+					info: info,
+					lyrics: lyrics
+				})
+			})
+
 		}
 	},
 	created() {
@@ -153,10 +168,10 @@ export default {
 		},
 	}
 }
-function getData(district, handler) {
+function getData(district, handler, id) {
 	bus.$emit('loading', true);
 	this.$http.get(district.url, {
-		params: district.params()
+		params: district.params(id)
 	}).then(res => {
 		bus.$emit('loading', false);
 		if(res.body.showapi_res_code === 0) {

@@ -65,7 +65,7 @@
 import {weather as api} from '../config/api.js'
 import cityList from '../config/cityList.js'
 import ingAndLat from '../config/lngAndLat.js'
-import apiData from '../config/aqi-3-27.js'
+import apiData from '../../static/data/haze/aqi-3-27.js'
 import bus from '../assets/eventBus.js'
 // import snow from '../../static/js/snowfall.jquery.min.js'
 
@@ -141,7 +141,7 @@ export default {
 
 	},
 	mounted() {
-		showHazeChart();
+		showHazeChart(apiData);
 		//页面装载，添加雪花效果。
 		// $(document).snowfall({
 		// 	image: './static/img/flake.png',
@@ -152,18 +152,17 @@ export default {
 		let hazeView = document.getElementById("hazeView");
 		
 		hazeView.onclick = function(e) {
-			var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
-			if(fullscreenElement) {
-				exitFullscreen()
-			} else {
-				launchFullscreen(hazeView)
-			}
+			// var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+			// if(fullscreenElement) {
+			// 	exitFullscreen()
+			// } else {
+			// 	launchFullscreen(hazeView)
+			// }
 
-			setTimeout(function() {
-		    	showHazeChart();
-		    }, 20)
+			// setTimeout(function() {
+		 //    	showHazeChart();
+		 //    }, 20)
 		    
-		    console.log(fullscreenElement)
 		}
 		
 	},
@@ -273,7 +272,7 @@ function showWeatherChart(that){
 	weatherChart.setOption(option)
 }
 
-function showHazeChart() {
+function showHazeChart(apiData) {
 
 	let hazeChart = echarts.init(document.querySelector('#hazeView'));
 
@@ -404,58 +403,7 @@ function exitFullscreen() {
     	document.webkitExitFullscreen();
   	}
 }
-//爬取空气质量node代码
-// const fs = require('fs');
-// const superagent = require('superagent');
-// const cityList = require('./supportCityList.js');
 
-// let url = 'http://route.showapi.com/104-29?city=';
-// const params = '&showapi_appid=34207&showapi_sign=4b506e41578e4b31a556377023b49060'
-
-// // var params = function() {
-// //         return {
-// //             city: '广州',
-// //             showapi_appid: 34207,
-// //             showapi_sign: "4b506e41578e4b31a556377023b49060"
-// //         }
-// //     }
-// const len = cityList.length
-// let i = 0;
-// console.time('count')
-// fetch(cityList[i], i < len);
-
-// result = [];
-// // fs.writeFile('./result.js', JSON.stringify(result), function() {
-
-// // })
-// function fetch(city, flag) {
-// 	if(!flag) {
-// 		fs.writeFile('./result.js', JSON.stringify(result))
-// 		console.timeEnd('count')
-// 		return;
-// 	}
-// 	superagent.get(url + encodeURI(city) + params)
-// 		.end(function(err, res) {
-// 			if(err) {
-// 				throw new Error('Custom Error : ' + err)
-// 				return;
-// 			}
-// 			// console.log(JSON.parse(res.text).showapi_res_body.pm)
-// 			let pm = JSON.parse(res.text).showapi_res_body.pm;
-// 			console.log(pm);
-// 			var temp = {}
-// 			temp['city'] = city;
-// 			temp['value'] = pm
-// 			result.push(temp);
-// 			setTimeout(() => {
-// 				fetch(cityList[i++], i < len)
-// 			}, 1000)
-// 		})
-// }
-
-// module.exports = {
-	
-// }
 
 
 </script>
