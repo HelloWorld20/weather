@@ -57,7 +57,7 @@
 								</td>
 								<td>
 									<div class="limit">
-										{{song.min}}:{{song.sec}}
+										{{song.timeFormated}}
 									</div>
 								</td>
 							</tr>
@@ -73,6 +73,7 @@
 <script>
 import {music as api} from "../config/api.js"
 import bus from '../assets/eventBus.js'
+import core from '../assets/core.js'
 export default {
 	data() {
 		return {
@@ -82,23 +83,21 @@ export default {
 		}
 	},
 	methods: {
-		getMusic(key, id) {
-			getData.call(this, api[key], list => {
-				sec2Min(list);
+		getMusic(key) {
+			getData.call(this, api[key], null, list => {
+				list.forEach((v, i) => {
+					list[i].timeFormated = core.sec2Min(v.seconds).formated
+				})
 				this.songList = list;
 				this.activeItem = key;
-			}, id)
+			})
 		},
 		search() {
-			bus.$emit('loading', true);
-			this.$http.get(api.search.url, {
-				params: api.search.params(this.songVal)
-			}).then(res => {
-				bus.$emit('loading', false);
-				if(res.body.showapi_res_code === 0) {
+			core.fetch.call(this, api.search, this.songVal, res => {
+				if(res.showapi_res_code === 0) {
 					let songList;
 					try{
-						songList = res.body.showapi_res_body.pagebean.contentlist.slice(0,10);
+						songList = res.showapi_res_body.pagebean.contentlist.slice(0,10);
 						songList = searchData2SongList(songList);
 						this.songList = songList;
 						this.activeItem = 'search'
@@ -110,33 +109,25 @@ export default {
 				}
 			})
 		},
-		
 		play(info) {
 			let lyrics;
-			this.$http.get(api.lyrics.url, {
-				params: api.lyrics.params(info.albumid)
-			}).then(res => {
-				
+			getData.call(this, api.lyrics, res => {
 				try{
 					lyrics = res.body.showapi_res_body.lyric_txt;
 				} catch (e) {
 					console.warn('获取歌词失败')
 				}
 
-				// console.log(res.body.showapi_res_body)
 				bus.$emit('play', {
 					info: info,
 					lyrics: lyrics
 				})
-			})
+			}, info.albumid)
 
 		}
 	},
 	created() {
 		this.getMusic('bestSeller');
-	},
-	mounted() {
-		
 	},
 	computed:{
 		isAmerica() {
@@ -168,16 +159,13 @@ export default {
 		},
 	}
 }
-function getData(district, handler, id) {
-	bus.$emit('loading', true);
-	this.$http.get(district.url, {
-		params: district.params(id)
-	}).then(res => {
-		bus.$emit('loading', false);
-		if(res.body.showapi_res_code === 0) {
+function getData(key, id, handler) {
+	// console.log(core.fetch)
+	core.fetch.call(this, key, id, res => {
+		if(res.showapi_res_code === 0) {
 			let songList;
 			try{
-				songList = res.body.showapi_res_body.pagebean.songlist.slice(0,10);
+				songList = res.showapi_res_body.pagebean.songlist.slice(0,10);
 			} catch (e) {
 				console.log(e)
 			}
@@ -186,18 +174,9 @@ function getData(district, handler, id) {
 			console.log('接口信息错误')
 		}
 	})
+
 }
-//秒变分：秒格式
-function sec2Min(list) {
-	list.forEach(function(v, i) {
-		if(!v.seconds) {
-			list[i].min = list[i].sec = '--'
-			return;
-		}
-		list[i].min = parseInt(v.seconds / 60);
-		list[i].sec = v.seconds % 60;
-	})
-}
+
 //搜索结果的数据格式转换成播放列表model
 function searchData2SongList(list) {
 	list.forEach(function(v, i) {

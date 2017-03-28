@@ -78,31 +78,32 @@
 
 <script>
 import bus from '../../assets/eventBus.js'
+import core from '../../assets/core.js'
 export default {
 	
 	data() {
 		return {
 			songData: {},												//音乐包含的信息
-			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',
+			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',//当前播放音乐链接
 			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
-			songStatus: 'glyphicon-play',								//播放器状态
+			songStatus: 'glyphicon-play',								//播放器按钮应该显示的状态
 			songStatusMap: {
 				play: 'glyphicon-play',
 				pause: 'glyphicon-pause',
 				stop: 'glyphicon-stop'
 			},
 			songName: '---',											//当前音乐名称
-			isActive: false,
-			albumpic_small: '../../../static/img/placeholder.png',
-			audio: null,
-			slider: null,
-			processBarLocked: false,
-			progress: 0,
-			volume: 50,
-			totleTime: 0,
-			couterFront: '--:--',										//播放进度
-			couterEnd: '--:--',											//音乐总时间
-			lyrics: ''
+			isActive: false,											//播放器是否全屏
+			albumpic_small: '../../../static/img/placeholder.png',		//封面图
+			audio: null,												//audio DOM对象
+			slider: null,												//jQuery UI slider插件返回的对象。
+			processBarLocked: false,									//进度条是否可调节
+			progress: 0,												//当前进度
+			volume: 50,													//当前音量
+			totleTime: 0,												//音乐总时间
+			couterFront: '--:--',										//进度条前，显示的当前时间
+			couterEnd: '--:--',											//进度条后，显示的总时间
+			lyrics: ''													//歌词
 		}
 	},
 	methods: {
@@ -136,13 +137,12 @@ export default {
 		let self = this;
 		bus.$on('play', function(receive) {
 			let info = receive.info;
-			// let lyrics = receive.lyrics;
+
 			self.songName = info.songname;
 			self.songSrc = info.url;
 			self.albumpic_small = info.albumpic_small;
 			self.totleTime = info.seconds || 59*60+59;
 			self.songData = info;
-
 			self.lyrics = receive.lyrics
 
 			// console.log(self.audio.readyState)		//4
@@ -154,33 +154,17 @@ export default {
 
 		})
 	},
-	watch: {
-
-	},
-	computed: {
-		// couterFront() {
-		// 	if(self.audio && self.audio.currentTime) {
-		// 		return parseInt(self.audio.currentTime / 60) + '' + self.audio.currentTime % 60;
-		// 	}
-		// 		return '--:--'
-		// },
-		// couterEnd() {
-		// 	if(this.totleTime === 0) {
-		// 		return '--:--'
-		// 	}
-		// 	return parseInt(this.totleTime / 60) + '' + this.totleTime % 60;
-		// }
-	},
 	mounted() {
 		let self = this;
 		this.audio = document.querySelector('#audio');
-		//
+		//jQuery UI slider插件
 		this.slider = $("#progressBar").slider({
 	        slide: function(e, ui) {
 	        	self.progress = ui.value
 	        },
 	        range: "min",
 	    });
+
 
 		$("#progressHandler").on('mouseup', function() {
 			self.processBarLocked = false;
@@ -189,29 +173,25 @@ export default {
 			self.processBarLocked = true;
 		})
 
+		//
 	    setInterval(function() {
 	    	let totleTime = self.totleTime
 	    	let currentTime = self.audio.currentTime
 	    	setProcessBar.call(self, parseInt(currentTime * 100 / totleTime))
-	    	self.couterFront = sec2MinStr(currentTime)
-	    	self.couterEnd = sec2MinStr(totleTime)
+	    	self.couterFront = core.sec2Min(currentTime).formated
+	    	self.couterEnd = core.sec2Min(totleTime).formated
 	    }, 500)
 
 	}
 
 }
+
+//设置进度条进度
 function setProcessBar(value) {
 	if(this.processBarLocked) return;
 	this.slider.slider('value', value)
 }
-function sec2MinStr(val) {
-	if(!val || val === 0) return '--:--'
-	return parseInt(val / 60) + ':' + parseInt(val % 60);
-	// return {
-	// 	sec: val.seconds % 60,
-	// 	min: parseInt(val.seconds / 60)
-	// }
-}
+
 
 </script>
 
