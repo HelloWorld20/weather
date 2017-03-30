@@ -2,7 +2,14 @@ import bus from './eventBus.js'
 export default {
 	//秒数换成分：秒
 	sec2Min: function(val) {
-		if(!val || val === 0) return '--:--'
+		if(!val || val === 0) {
+			return {
+				formated: '--:--',
+				sec: -1,
+				min: -1
+			}
+		}
+
 		return {
 			formated: parseInt(val / 60) + ':' + parseInt(val % 60),
 			sec: val.seconds % 60,
@@ -21,6 +28,9 @@ export default {
 			} else {
 				console.log('获取资源失败')
 			}
+		}, err => {
+			bus.$emit('loading', false);
+			console.log(err)
 		})
 	} 
 }

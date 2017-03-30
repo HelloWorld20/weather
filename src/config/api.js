@@ -2,6 +2,15 @@ export const weather = {
     //和风天气
 	key: "60317f77a63c432a872bbacbbed9e204",
 	default: 'https://free-api.heweather.com/v5/forecast?city=guangzhou&key=60317f77a63c432a872bbacbbed9e204',
+    forecast: {
+        url: 'https://free-api.heweather.com/v5/forecast',
+        params: (id) => {
+            return {
+                city: id,
+                key: '60317f77a63c432a872bbacbbed9e204'
+            }
+        }
+    },
     //易源数据
     haze: {
         url: 'https://route.showapi.com/104-29',

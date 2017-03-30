@@ -4,7 +4,7 @@
 			<div class="row">
 				<div class="col-md-5">
 					<div class="song-info">
-						<img :src="albumpic_small" :alt="songName">
+						<img :src="albumpic_small" :alt="songName" draggable="false">
 						<div style="padding: 0 10px;">正在播放：</div>
 						<div id="songName" :title="songName">{{songName}}</div>
 					</div>
@@ -19,15 +19,20 @@
 					<div id="progressInfo">
 						<div class="time fl">{{couterFront}}</div>
 				        <div class="time fr">{{couterEnd}}</div>
-						<div id="progressBar" class="ui-slider ui-slider-horizontal">
+						<!-- <div id="progressBar" class="ui-slider ui-slider-horizontal">
 				          	<div class="ui-slider-range"></div>
-				          	<a id="progressHandler" class="ui-slider-handle" href="javascript:;"></a>
+				          	<a id="progressHandler" class="ui-slider-handle" href="javascript:;" @mouseup="adjustProgressEnd" @mousedown="adjustProgressStart"></a>
+				        </div>
+ -->
+				        <div id="progressBar" class="ui-slider ui-slider-horizontal" draggable="false">
+				        	<div class="ui-slider-handle" style="left: 0;" draggable="false"></div>
+				        	<div class="ui-slider-range ui-corner-all" style="width: 0;" draggable="false"></div>
 				        </div>
 					</div>
 				</div>
 			</div>
 			<div class="row">
-				<div id="lyrics" class="col-md-12">
+				<div id="lyrics" class="col-md-12" v-bind:style="{ height: lyricsHeight }">
 				<!-- {{lyrics}} -->
 					告白气球
 词：方文山<br/><br/>
@@ -69,9 +74,7 @@
 在说我愿意<br/><br/>
 				</div>
 			</div>
-			<audio id="audio" :src="songSrc" loop controls style="display: none">
-			<!-- <source :src='songSrc' id="source"> -->
-			</audio>
+			<audio id="audio" :src="songSrc" loop controls style="display: none"></audio>
 		</div>
 	</div>
 </template>
@@ -94,7 +97,7 @@ export default {
 			},
 			songName: '---',											//当前音乐名称
 			isActive: false,											//播放器是否全屏
-			albumpic_small: '../../../static/img/placeholder.png',		//封面图
+			albumpic_small: require('../../../static/img/placeholder.png'),		//封面图
 			audio: null,												//audio DOM对象
 			slider: null,												//jQuery UI slider插件返回的对象。
 			processBarLocked: false,									//进度条是否可调节
@@ -103,7 +106,8 @@ export default {
 			totleTime: 0,												//音乐总时间
 			couterFront: '--:--',										//进度条前，显示的当前时间
 			couterEnd: '--:--',											//进度条后，显示的总时间
-			lyrics: ''													//歌词
+			lyrics: '',													//歌词
+			lyricsHeight: 'auto',
 		}
 	},
 	methods: {
@@ -131,6 +135,13 @@ export default {
 		},
 		toggleActive() {
 			this.isActive = !this.isActive
+			this.lyricsHeight = window.innerHeight - 100 + 'px'
+		},
+		adjustProgressEnd() {
+			this.processBarLocked = false;
+		},
+		adjustProgressStart() {
+			this.processBarLocked = true;
 		}
 	},
 	created() {
@@ -140,7 +151,7 @@ export default {
 
 			self.songName = info.songname;
 			self.songSrc = info.url;
-			self.albumpic_small = info.albumpic_small;
+			self.albumpic_small = info.albumpic_small.replace('http://', 'https://');
 			self.totleTime = info.seconds || 59*60+59;
 			self.songData = info;
 			self.lyrics = receive.lyrics
@@ -157,39 +168,86 @@ export default {
 	mounted() {
 		let self = this;
 		this.audio = document.querySelector('#audio');
-		//jQuery UI slider插件
-		this.slider = $("#progressBar").slider({
-	        slide: function(e, ui) {
-	        	self.progress = ui.value
-	        },
-	        range: "min",
-	    });
 
-
-		$("#progressHandler").on('mouseup', function() {
-			self.processBarLocked = false;
-			self.audio.currentTime = parseInt(parseInt(self.progress * self.totleTime) / 100)
-		}).on('mousedown', function() {
-			self.processBarLocked = true;
-		})
-
-		//
+		// //每秒更新一下进度条
 	    setInterval(function() {
 	    	let totleTime = self.totleTime
 	    	let currentTime = self.audio.currentTime
-	    	setProcessBar.call(self, parseInt(currentTime * 100 / totleTime))
+	    	setProcessBar(parseInt(currentTime * 100 / totleTime))
 	    	self.couterFront = core.sec2Min(currentTime).formated
 	    	self.couterEnd = core.sec2Min(totleTime).formated
 	    }, 500)
 
+		// 522px
+		//滚动条总长度
+		let totleWidth = parseInt(window.getComputedStyle(document.querySelector('#progressBar')).width)
+		//百分比
+		let percent = -1;
+		//鼠标按下screenX
+		let startX = 0;
+		//鼠标按下时控制点的screenX
+		let startLeft = 0;
+
+		document.querySelector('#progressBar .ui-slider-handle').addEventListener('mousedown', function(e) {
+			let tar = e.target
+			let tarWidth = parseInt(window.getComputedStyle(tar).width);
+			let left = startLeft = parseInt(window.getComputedStyle(tar).left)
+			let tarMarginLeft = parseInt(window.getComputedStyle(tar).marginLeft)
+			percent = parseInt((left + tarMarginLeft + tarWidth/2) / totleWidth * 100 + 1);
+
+			startX = e.screenX;
+
+			// console.log(percent, left, tarWidth, totleWidth, tarMarginLeft)
+			self.processBarLocked = true;
+		}, false)
+
+		document.addEventListener('mousemove', function(e) {
+
+			if(self.processBarLocked) {
+				
+				let np =  (e.screenX - startX + startLeft)
+
+				if(np < 0) {
+					np = 0
+				} else if (np > totleWidth) {
+					np = totleWidth
+				}
+				document.querySelector("#progressBar .ui-slider-handle").style.left = np + 'px';
+				document.querySelector("#progressBar .ui-slider-range").style.width = np + 'px';
+			}
+		}, false)
+
+		document.addEventListener('mouseup', function(e) {
+			let tar = document.querySelector("#progressBar .ui-slider-handle")
+
+			let tarWidth = parseInt(window.getComputedStyle(tar).width);
+			let left = parseInt(window.getComputedStyle(tar).left)
+			let tarMarginLeft = parseInt(window.getComputedStyle(tar).marginLeft)
+
+			percent = parseInt((left + tarMarginLeft + tarWidth/2) / totleWidth * 100 + 1)
+			//如果，松开鼠标时再控制按钮上，则返回进度值，防止鼠标在其他地方点击时也会返回进度值。
+			if(self.processBarLocked) {
+				console.log(percent)
+				self.audio.currentTime = parseInt(parseInt(percent * self.totleTime) / 100)
+			}
+			// console.log(percent, left, tarMarginLeft, tarWidth, totleWidth, (left + tarMarginLeft + tarWidth/2) / totleWidth * 100)
+
+			self.processBarLocked = false;
+		}, false)
+
+		//设置进度条进度
+		function setProcessBar(value) {
+			if(self.processBarLocked) return;
+
+			let np = parseInt(value * totleWidth / 100)
+			
+			document.querySelector("#progressBar .ui-slider-handle").style.left = np + 'px';
+			document.querySelector("#progressBar .ui-slider-range").style.width = np + 'px';
+
+		}
+
 	}
 
-}
-
-//设置进度条进度
-function setProcessBar(value) {
-	if(this.processBarLocked) return;
-	this.slider.slider('value', value)
 }
 
 
@@ -215,7 +273,7 @@ function setProcessBar(value) {
 	text-overflow:ellipsis;
 }
 #lyrics{
-	overflow: hidden;
+	overflow: auto;
 }
 .controller{
 	margin: 10px 0;
@@ -235,6 +293,8 @@ function setProcessBar(value) {
 	width: 10%;
 	margin-top: -2px;
 }
-
+::-webkit-scrollbar{
+	width: 0;
+}
 
 </style>

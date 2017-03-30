@@ -7,7 +7,7 @@
 		    				<input class="todo-search-field" type="search" value="" placeholder="Search" v-model="input" />
 						</div>
 						<ul>
-		    				<li v-for="(city,index) in cityLists" :class="{ 'todo-done': activeList[index] }" :data-id="city.id" @click="toggleActive(index)">
+		    				<li v-for="(city,index) in cityLists" :class="{ 'todo-done': activeList[index] }" :data-id="city.id" @click="getForecastData(index)">
 						        <div class="todo-icon fui-man-24"></div>
 						        <div class="todo-content">
 		            				<h4 class="todo-name">
@@ -67,6 +67,7 @@ import cityList from '../config/cityList.js'
 import ingAndLat from '../config/lngAndLat.js'
 import apiData from '../../static/data/haze/aqi-3-27.js'
 import bus from '../assets/eventBus.js'
+import core from '../assets/core.js'
 // import snow from '../../static/js/snowfall.jquery.min.js'
 
 export default {
@@ -93,20 +94,18 @@ export default {
 		}
 	},
 	methods: {
-		toggleActive(index) {
+
+		getForecastData(index) {
 			bus.$emit('loading', true);
 			this.activeList = [false, false, false, false];
 			this.$set(this.activeList, index, !this.activeList[index])
 			this.$nextTick(function() {
 				var selectedCity = document.querySelector('.todo-done')
 
-				this.$http.get(api.url, {
-					params: api.params(selectedCity.getAttribute('data-id'))
-				}).then(res => {
-					bus.$emit('loading', false);
+				core.fetch.call(this, api.forecast, selectedCity.getAttribute('data-id'), res => {
 					let data;
 					try{
-						data = res.body.HeWeather5[0]
+						data = res.HeWeather5[0]
 					}catch(e) {
 						console.warn(e)
 					}
@@ -125,11 +124,11 @@ export default {
 	created() {
 		bus.$emit('loading', true);
 		//加载时，获取广州数据
-		this.$http.get(api.default).then(function(res) {
-			bus.$emit('loading', false);
+
+		core.fetch.call(this, api.forecast, 'guangzhou', res => {
 			let data;
 			try{
-				data = res.body.HeWeather5[0]
+				data = res.HeWeather5[0]
 			}catch(e) {
 				console.warn(e)
 			}
@@ -137,7 +136,8 @@ export default {
 				convert2Chart.call(this, data)
 				showWeatherChart(this);
 			}
-		});
+		})
+
 
 	},
 	mounted() {
@@ -149,9 +149,9 @@ export default {
 		// 	maxSize:32
 		// })
 
-		let hazeView = document.getElementById("hazeView");
-		
-		hazeView.onclick = function(e) {
+		// 空气质量全屏，体验不好，暂时注释掉。
+		// let hazeView = document.getElementById("hazeView");
+		// hazeView.onclick = function(e) {
 			// var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
 			// if(fullscreenElement) {
 			// 	exitFullscreen()
@@ -163,7 +163,7 @@ export default {
 		 //    	showHazeChart();
 		 //    }, 20)
 		    
-		}
+		// }
 		
 	},
 	watch: {
@@ -176,6 +176,7 @@ export default {
 					return false
 			})
 			if(val === "") {
+				//默认裁剪到广州地区，
 				this.cityLists = this.cityList.slice(1518, 1522)
 				return;
 			}
@@ -271,7 +272,7 @@ function showWeatherChart(that){
 	};
 	weatherChart.setOption(option)
 }
-
+//显示空气质量图
 function showHazeChart(apiData) {
 
 	let hazeChart = echarts.init(document.querySelector('#hazeView'));
@@ -279,6 +280,7 @@ function showHazeChart(apiData) {
 	let geoCoordMap = {};
 	let apiMap = [];
 
+	//构造经纬度参数
 	for(let i in ingAndLat) {
 		let detail = ingAndLat[i];
 		let tArr = [];
@@ -288,7 +290,7 @@ function showHazeChart(apiData) {
 
 		geoCoordMap[i] = tArr;
 	}
-
+	//构造空气质量数据
 	for(let i in apiData) {
 		let tObj = {}
 		let current = apiData[i];
@@ -297,7 +299,7 @@ function showHazeChart(apiData) {
 			tObj.name = current.city
 			tObj.value = current.value.aqi
 		} catch (e) {
-			console.log('部分aqi参数为空')
+			console.warn('部分aqi参数为空')
 		}
 
 		apiMap.push(tObj)
@@ -379,7 +381,7 @@ function convert2Chart(data) {
 	})
 	this.daily = daily
 }
-
+//全屏
 function launchFullscreen(element) {
   	if(element.requestFullscreen) {
     	element.requestFullscreen();
@@ -391,7 +393,7 @@ function launchFullscreen(element) {
     	element.webkitRequestFullScreen();
   	}
 }
-
+//取消全屏
 function exitFullscreen() {
   	if (document.exitFullscreen) {
     	document.exitFullscreen();

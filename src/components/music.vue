@@ -42,7 +42,7 @@
 							<tr v-for="song in songList">
 								<td>
 									<a href="javascript:;" @click="play(song)">
-										<img :src="song.albumpic_small" :alt="song.songname">
+										<img :src="http2S(song.albumpic_small)" :alt="song.songname">
 									</a>
 								</td>
 								<td>
@@ -110,10 +110,10 @@ export default {
 			})
 		},
 		play(info) {
-			let lyrics;
-			getData.call(this, api.lyrics, res => {
+			let lyrics
+			core.fetch.call(this, api.lyrics, info.albumid, res => {
 				try{
-					lyrics = res.body.showapi_res_body.lyric_txt;
+					lyrics = res.showapi_res_body.lyric_txt;
 				} catch (e) {
 					console.warn('获取歌词失败')
 				}
@@ -122,8 +122,11 @@ export default {
 					info: info,
 					lyrics: lyrics
 				})
-			}, info.albumid)
+			})
 
+		},
+		http2S(url) {
+			return url.replace('http://', 'https://')
 		}
 	},
 	created() {
