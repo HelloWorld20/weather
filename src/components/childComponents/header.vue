@@ -70,8 +70,8 @@
 			bus.$on('loading', function(msg) {
 				self.isLoading = msg;
 			})
-			bus.$on('alert', function(flag, msg) {
-				self.isAlert = flag;
+			bus.$on('alert', function(msg) {
+				self.isAlert = true;
 				self.alertMsg = msg;
 			})
 		},

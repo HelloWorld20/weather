@@ -108,6 +108,7 @@ export default {
 						data = res.HeWeather5[0]
 					}catch(e) {
 						console.warn(e)
+						core.alert('获取天气信息错误，详情查看控制台')
 					}
 					if(data.status === "ok") {
 						convert2Chart.call(this, data);
@@ -300,7 +301,7 @@ function showHazeChart(apiData) {
 			tObj.name = current.city
 			tObj.value = current.value.aqi
 		} catch (e) {
-			console.warn('部分aqi参数为空')
+			core.alert('部分aqi参数为空')
 		}
 
 		apiMap.push(tObj)

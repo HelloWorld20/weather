@@ -104,9 +104,10 @@ export default {
 						this.activeItem = 'search'
 					} catch (e) {
 						console.warn(e)
+						core.alert('无法获取歌曲列表数据，详情查看控制台')
 					}
 				} else {
-					console.warn('接口信息错误')
+					core.alert('接口信息错误')
 				}
 			})
 		},
@@ -116,7 +117,7 @@ export default {
 				try{
 					lyrics = res.showapi_res_body.lyric_txt;
 				} catch (e) {
-					console.warn('获取歌词失败')
+					core.alert('获取歌词失败')
 				}
 
 				bus.$emit('play', {
@@ -166,16 +167,17 @@ export default {
 function getData(key, id, handler) {
 	// console.log(core.fetch)
 	core.fetch.call(this, key, id, res => {
-		if(res.showapi_res_code === 0) {
+		if(res.showapi_res_code === 0 && res.showapi_res_body.ret_code === 0) {
 			let songList;
 			try{
 				songList = res.showapi_res_body.pagebean.songlist.slice(0,10);
 			} catch (e) {
 				console.warn(e)
+				core.alert('无法获取歌曲列表数据，详情查看控制台')
 			}
 			handler(songList);
 		} else {
-			console.warn('接口信息错误')
+			core.alert('接口信息错误')
 		}
 	})
 

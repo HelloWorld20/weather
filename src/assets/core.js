@@ -32,5 +32,10 @@ export default {
 			bus.$emit('loading', false);
 			console.log(err)
 		})
+	},
+
+	alert(msg) {
+		bus.$emit('alert', msg)
+		console.warn(msg);
 	} 
 }
