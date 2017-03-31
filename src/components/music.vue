@@ -102,10 +102,10 @@ export default {
 						this.songList = songList;
 						this.activeItem = 'search'
 					} catch (e) {
-						console.log(e)
+						console.warn(e)
 					}
 				} else {
-					console.log('接口信息错误')
+					console.warn('接口信息错误')
 				}
 			})
 		},
@@ -170,11 +170,11 @@ function getData(key, id, handler) {
 			try{
 				songList = res.showapi_res_body.pagebean.songlist.slice(0,10);
 			} catch (e) {
-				console.log(e)
+				console.warn(e)
 			}
 			handler(songList);
 		} else {
-			console.log('接口信息错误')
+			console.warn('接口信息错误')
 		}
 	})
 

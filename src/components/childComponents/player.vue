@@ -25,8 +25,8 @@
 				        </div>
  -->
 				        <div id="progressBar" class="ui-slider ui-slider-horizontal" draggable="false">
-				        	<div class="ui-slider-handle" style="left: 0;" draggable="false"></div>
-				        	<div class="ui-slider-range ui-corner-all" style="width: 0;" draggable="false"></div>
+				        	<div class="ui-slider-handle" draggable="false"></div>
+				        	<div class="ui-slider-range ui-corner-all" draggable="false"></div>
 				        </div>
 					</div>
 				</div>
@@ -82,12 +82,14 @@
 <script>
 import bus from '../../assets/eventBus.js'
 import core from '../../assets/core.js'
+import slider from '../../assets/slider.js'
 export default {
 	
 	data() {
 		return {
 			songData: {},												//音乐包含的信息
-			songSrc: 'http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46',//当前播放音乐链接
+			songSrc: '',//当前播放音乐链接
+			// http://ws.stream.qqmusic.qq.com/200812326.m4a?fromtag=46
 			// http://ws.stream.qqmusic.qq.com/200221528.m4a?fromtag=46
 			songStatus: 'glyphicon-play',								//播放器按钮应该显示的状态
 			songStatusMap: {
@@ -169,82 +171,20 @@ export default {
 		let self = this;
 		this.audio = document.querySelector('#audio');
 
+		let sliderObj = slider.init('#progressBar', {
+			after: function(percent) {
+				self.audio.currentTime = parseInt(parseInt(percent * self.totleTime) / 100)
+			}
+		});
+
 		// //每秒更新一下进度条
 	    setInterval(function() {
 	    	let totleTime = self.totleTime
 	    	let currentTime = self.audio.currentTime
-	    	setProcessBar(parseInt(currentTime * 100 / totleTime))
+	    	sliderObj.value(parseInt(currentTime * 100 / totleTime))
 	    	self.couterFront = core.sec2Min(currentTime).formated
 	    	self.couterEnd = core.sec2Min(totleTime).formated
 	    }, 500)
-
-		// 522px
-		//滚动条总长度
-		let totleWidth = parseInt(window.getComputedStyle(document.querySelector('#progressBar')).width)
-		//百分比
-		let percent = -1;
-		//鼠标按下screenX
-		let startX = 0;
-		//鼠标按下时控制点的screenX
-		let startLeft = 0;
-
-		document.querySelector('#progressBar .ui-slider-handle').addEventListener('mousedown', function(e) {
-			let tar = e.target
-			let tarWidth = parseInt(window.getComputedStyle(tar).width);
-			let left = startLeft = parseInt(window.getComputedStyle(tar).left)
-			let tarMarginLeft = parseInt(window.getComputedStyle(tar).marginLeft)
-			percent = parseInt((left + tarMarginLeft + tarWidth/2) / totleWidth * 100 + 1);
-
-			startX = e.screenX;
-
-			// console.log(percent, left, tarWidth, totleWidth, tarMarginLeft)
-			self.processBarLocked = true;
-		}, false)
-
-		document.addEventListener('mousemove', function(e) {
-
-			if(self.processBarLocked) {
-				
-				let np =  (e.screenX - startX + startLeft)
-
-				if(np < 0) {
-					np = 0
-				} else if (np > totleWidth) {
-					np = totleWidth
-				}
-				document.querySelector("#progressBar .ui-slider-handle").style.left = np + 'px';
-				document.querySelector("#progressBar .ui-slider-range").style.width = np + 'px';
-			}
-		}, false)
-
-		document.addEventListener('mouseup', function(e) {
-			let tar = document.querySelector("#progressBar .ui-slider-handle")
-
-			let tarWidth = parseInt(window.getComputedStyle(tar).width);
-			let left = parseInt(window.getComputedStyle(tar).left)
-			let tarMarginLeft = parseInt(window.getComputedStyle(tar).marginLeft)
-
-			percent = parseInt((left + tarMarginLeft + tarWidth/2) / totleWidth * 100 + 1)
-			//如果，松开鼠标时再控制按钮上，则返回进度值，防止鼠标在其他地方点击时也会返回进度值。
-			if(self.processBarLocked) {
-				console.log(percent)
-				self.audio.currentTime = parseInt(parseInt(percent * self.totleTime) / 100)
-			}
-			// console.log(percent, left, tarMarginLeft, tarWidth, totleWidth, (left + tarMarginLeft + tarWidth/2) / totleWidth * 100)
-
-			self.processBarLocked = false;
-		}, false)
-
-		//设置进度条进度
-		function setProcessBar(value) {
-			if(self.processBarLocked) return;
-
-			let np = parseInt(value * totleWidth / 100)
-			
-			document.querySelector("#progressBar .ui-slider-handle").style.left = np + 'px';
-			document.querySelector("#progressBar .ui-slider-range").style.width = np + 'px';
-
-		}
 
 	}
 
@@ -293,7 +233,7 @@ export default {
 	width: 10%;
 	margin-top: -2px;
 }
-::-webkit-scrollbar{
+#lyrics::-webkit-scrollbar{
 	width: 0;
 }
 

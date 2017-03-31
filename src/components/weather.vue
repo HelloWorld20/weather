@@ -100,7 +100,7 @@ export default {
 			this.activeList = [false, false, false, false];
 			this.$set(this.activeList, index, !this.activeList[index])
 			this.$nextTick(function() {
-				var selectedCity = document.querySelector('.todo-done')
+				let selectedCity = document.querySelector('.todo-done')
 
 				core.fetch.call(this, api.forecast, selectedCity.getAttribute('data-id'), res => {
 					let data;
@@ -169,7 +169,7 @@ export default {
 	watch: {
 		input: function(val, oldVal) {
 			this.activeList = [false, false, false, false];
-			var filted = this.cityList.filter(function(v) {
+			let filted = this.cityList.filter(function(v) {
 				if(v.cityEn.indexOf(val) !== -1)
 					return true
 				else 
@@ -281,19 +281,20 @@ function showHazeChart(apiData) {
 	let apiMap = [];
 
 	//构造经纬度参数
-	for(let i in ingAndLat) {
-		let detail = ingAndLat[i];
+	myObject.keys(ingAndLat).forEach(v => {
+		let detail = ingAndLat[v];
 		let tArr = [];
 
 		tArr.push(detail.lng)
 		tArr.push(detail.lat)
 
-		geoCoordMap[i] = tArr;
-	}
+		geoCoordMap[v] = tArr;
+	})
+
 	//构造空气质量数据
-	for(let i in apiData) {
+	myObject.keys(apiData).forEach(v => {
 		let tObj = {}
-		let current = apiData[i];
+		let current = apiData[v];
 		
 		try{
 			tObj.name = current.city
@@ -303,16 +304,16 @@ function showHazeChart(apiData) {
 		}
 
 		apiMap.push(tObj)
-	}
+	})
 
-	var convertData = function (data) {
-	    var res = [];
-	    for (var i = 0; i < data.length; i++) {
-	        var geoCoord = geoCoordMap[data[i].name];
+	let convertData = function (data) {
+	    let res = [];
+	    data.forEach(v => {
+	    	let geoCoord = geoCoordMap[v.name];
 	        if (geoCoord) {
-	            res.push(geoCoord.concat(data[i].value));
+	            res.push(geoCoord.concat(v.value));
 	        }
-	    }
+	    })
 	    return res;
 	};
 
