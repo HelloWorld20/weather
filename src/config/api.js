@@ -22,7 +22,7 @@ export const weather = {
         }
     },
     hazeRank: {
-        url: 'http://route.showapi.com/104-41',
+        url: 'https://route.showapi.com/104-41',
         params: () => {
             return {
                 city: '广州',
@@ -133,7 +133,7 @@ export const music = {
         },
     },
     lyrics: {
-        url: 'http://route.showapi.com/213-2',
+        url: 'https://route.showapi.com/213-2',
         params: (id) => {
             return {
                 showapi_appid: 31967,
