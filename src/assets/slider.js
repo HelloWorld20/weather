@@ -1,5 +1,6 @@
 /**
  * 进度条插件。
+ * 要求的html结构。
  * <div id="progressBar" class="ui-slider ui-slider-horizontal" draggable="false">
  *  	<div class="ui-slider-handle" draggable="false"></div>
  *  	<div class="ui-slider-range ui-corner-all" draggable="false"></div>

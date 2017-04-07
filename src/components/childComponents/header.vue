@@ -24,6 +24,8 @@
 					<li :class="{active: isHome}"><a href="#">home <span class="sr-only">(current)</span></a></li>
 					<li :class="{active: isWeather}"><a href="#/weather">weather</a></li>
 					<li :class="{active: isMusic}"><a href="#/music">music</a></li>
+					<li :class="{active: isBlog}"><a href="#/blog">blog</a></li>
+					<li :class="{active: isGalery}"><a href="#/galery">galery</a></li>
 					<li><a href="javascript:;" @click="isAlert = true">test</a></li>
 					<!-- <li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
@@ -50,8 +52,8 @@
 		data() {
 			return {
 				isLoading: false,
-				isAlert: true,
-				alertMsg: 'Best check yo self, you\'re not looking too good.'
+				isAlert: false,
+				alertMsg: 'Alert Message！！！'
 			}
 		},
 		computed: {
@@ -63,6 +65,12 @@
 			},
 			isMusic: function() {
 				return this.$route.path === '/music'
+			},
+			isBlog: function() {
+				return this.$route.path === 'blog'
+			},
+			isGalary: function() {
+				return this.$route.path === 'galery'
 			}
 		},
 		created() {
