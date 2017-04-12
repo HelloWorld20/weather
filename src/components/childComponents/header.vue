@@ -24,9 +24,9 @@
 					<li :class="{active: isHome}"><a href="#">home <span class="sr-only">(current)</span></a></li>
 					<li :class="{active: isWeather}"><a href="#/weather">weather</a></li>
 					<li :class="{active: isMusic}"><a href="#/music">music</a></li>
-					<li :class="{active: isBlog}"><a href="#/blog">blog</a></li>
-					<li :class="{active: isGalery}"><a href="#/galery">galery</a></li>
-					<li><a href="javascript:;" @click="isAlert = true">test</a></li>
+					<li :class="{active: isBlog}"><a href="https://helloworld20.github.io">blog</a></li>
+					<!-- <li :class="{active: isGalery}"><a href="#/galery">galery</a></li>
+					<li><a href="javascript:;" @click="isAlert = true">test</a></li> -->
 					<!-- <li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
 			          	<ul class="dropdown-menu">
@@ -69,7 +69,7 @@
 			isBlog: function() {
 				return this.$route.path === 'blog'
 			},
-			isGalary: function() {
+			isGalery: function() {
 				return this.$route.path === 'galery'
 			}
 		},

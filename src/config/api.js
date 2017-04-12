@@ -34,101 +34,101 @@ export const weather = {
 };
 export const music = {
     america: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 3,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     mainland: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 5,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     hongkong: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 6,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     korea: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 16,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     japan: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 17,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     ballad: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 18,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     rock: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 19,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     bestSeller: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 23,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     hot: {
-        url: 'https://route.showapi.com/213-4?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-4?showapi_appid=34207',
         params: (id) => {
             return {
                 showapi_timestamp: null,
                 topid: 26,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
     search: {
-        url: 'https://route.showapi.com/213-1?showapi_appid=31967',
+        url: 'https://route.showapi.com/213-1?showapi_appid=34207',
         params: (key) => {
             return {
                 keyword: key,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
             }
         },
     },
@@ -136,8 +136,8 @@ export const music = {
         url: 'https://route.showapi.com/213-2',
         params: (id) => {
             return {
-                showapi_appid: 31967,
-                showapi_sign: '7c45d428c1024a5e88c3cbc78a506646',
+                showapi_appid: 34207,
+                showapi_sign: '4b506e41578e4b31a556377023b49060',
                 musicid: id
             }
         }
