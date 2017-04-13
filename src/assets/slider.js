@@ -8,14 +8,21 @@
  */
 export default {
 	init(selector, opt) {
-		let after = opt.after || function() {}
+		let $bar = document.querySelector(selector)
+		let $handler = document.querySelector(selector + " .ui-slider-handle")
+		let $range = document.querySelector(selector + " .ui-slider-range")
+
+		//mouseup时候触发
+		let after = opt.after || function() {}		
+		//进度条点击事件
+		let click = opt.click || function() {}
 		// 522px
 		//滚动条总长度
 		let totleWidth = parseInt(window.getComputedStyle(document.querySelector(selector)).width)
 		//控制按钮的margin-left
-		let handlerMarginLeft = parseInt(window.getComputedStyle(document.querySelector(selector + " .ui-slider-handle")).marginLeft)
+		let handlerMarginLeft = parseInt(window.getComputedStyle($handler).marginLeft)
 		//控制按钮的width
-		let handlerWidth = parseInt(window.getComputedStyle(document.querySelector(selector + " .ui-slider-handle")).width)
+		let handlerWidth = parseInt(window.getComputedStyle($handler).width)
 
 		//百分比
 		let percent = -1;
@@ -26,7 +33,10 @@ export default {
 		//拖动时上锁
 		let isLocked = false;
 
-		document.querySelector(selector + " .ui-slider-handle").addEventListener('mousedown', function(e) {
+		
+
+		$handler.addEventListener('mousedown', function(e) {
+			e.stopPropagation()
 			let left = startLeft = parseInt(window.getComputedStyle(e.target).left)
 
 			//percent = parseInt((left + handlerMarginLeft + handlerWidth/2) / totleWidth * 100 + 1);
@@ -36,7 +46,7 @@ export default {
 			// console.log(percent, left, handlerWidth, totleWidth, handlerMarginLeft)
 			isLocked = true;
 		}, false)
-
+		//之所以把mousemove和mouseup挂在document上是因为拖动时，鼠标移出滑动条范围时还可以跟着鼠标移动
 		document.addEventListener('mousemove', function(e) {
 
 			if(isLocked) {
@@ -48,24 +58,32 @@ export default {
 				} else if (np > totleWidth) {
 					np = totleWidth
 				}
-				document.querySelector(selector + " .ui-slider-handle").style.left = np + 'px';
-				document.querySelector(selector + " .ui-slider-range").style.width = np + 'px';
+				$handler.style.left = np + 'px';
+				$range.style.width = np + 'px';
 			}
 		}, false)
 
 		document.addEventListener('mouseup', function(e) {
-			let tar = document.querySelector(selector + " .ui-slider-handle")
+			let tar = $handler
 			let left = parseInt(window.getComputedStyle(tar).left)
 
 			percent = parseInt((left + handlerMarginLeft + handlerWidth/2) / totleWidth * 100 + 1)
 			//如果，松开鼠标时再控制按钮上，则返回进度值，防止鼠标在其他地方点击时也会返回进度值。
 			if(isLocked) {
-				opt.after(percent);
+				after(percent);
 			}
 			// console.log(percent, left, handlerMarginLeft, handlerWidth, totleWidth, (left + handlerMarginLeft + handlerWidth/2) / totleWidth * 100)
 			
 
 			isLocked = false;
+		}, false)
+
+		//点击进度条直接跳转
+		$bar.addEventListener('mousedown', e => {
+			percent = parseInt(e.offsetX / totleWidth * 100)
+			$handler.style.left = e.offsetX + 'px';
+			$range.style.width = e.offsetX + 'px';
+			click(percent)
 		}, false)
 
 		//设置进度条进度
@@ -74,8 +92,8 @@ export default {
 
 			let np = parseInt((value * totleWidth / 100) - handlerMarginLeft)
 			
-			document.querySelector(selector + " .ui-slider-handle").style.left = np + 'px';
-			document.querySelector(selector + " .ui-slider-range").style.width = np + 'px';
+			$handler.style.left = np + 'px';
+			$range.style.width = np + 'px';
 
 		}
 		

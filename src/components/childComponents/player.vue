@@ -174,6 +174,9 @@ export default {
 		let sliderObj = slider.init('#progressBar', {
 			after: function(percent) {
 				self.audio.currentTime = parseInt(parseInt(percent * self.totleTime) / 100)
+			}, 
+			click: function(percent) {
+				self.audio.currentTime = parseInt(parseInt(percent * self.totleTime) / 100)
 			}
 		});
 

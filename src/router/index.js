@@ -9,8 +9,8 @@ import Router from 'vue-router'
 const Hello = resolve => require(['@/components/Hello.vue'], resolve)
 const weather = resolve => require(['@/components/weather.vue'], resolve)
 const music = resolve => require(['@/components/music.vue'], resolve)
-const blog = resolve => require(['@/components/blog.vue'], resolve)
-const galery = resolve => require(['@/components/galery.vue'], resolve)
+// const blog = resolve => require(['@/components/blog.vue'], resolve)
+// const gallery = resolve => require(['@/components/gallery.vue'], resolve)
 const NotFound = resolve => require(['@/components/NotFound.vue'], resolve)
 
 Vue.use(Router)
@@ -32,16 +32,16 @@ export default new Router({
       name: 'music',
       component: music
     },
-    {
-      path: '/blog',
-      name: 'blog',
-      component: blog
-    },
-    {
-      path: '/galery',
-      name: 'galery',
-      component: galery
-    },
+    // {
+    //   path: '/blog',
+    //   name: 'blog',
+    //   component: blog
+    // },
+    // {
+    //   path: '/galery',
+    //   name: 'galery',
+    //   component: galery
+    // },
     {
       path: '*',
       name: 'NotFound',
